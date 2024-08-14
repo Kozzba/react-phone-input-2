@@ -267,7 +267,7 @@ class PhoneInput extends React.Component {
     return probableCountries[0];
   });
 
-  guessSelectedCountry = memoize((inputNumber, country, onlyCountries, hiddenAreaCodes) => {
+  guessSelectedCountry = (inputNumber, country, onlyCountries, hiddenAreaCodes) => {
     // if enableAreaCodes == false, try to search in hidden area codes to detect area code correctly
     // then search and insert main country which has this area code
     // https://github.com/bl00mber/react-phone-input-2/issues/201
@@ -287,11 +287,13 @@ class PhoneInput extends React.Component {
       if (mainCode) return mainCode;
     }
 
-    const secondBestGuess = onlyCountries.find(o => o.iso2 == country);
-    if (inputNumber.trim() === '') return secondBestGuess;
+    const secondBestGuess = onlyCountries.find(o => o.dialCode == inputNumber);
+    if (!secondBestGuess) return 0;
+
+    return secondBestGuess;
 
     const bestGuess = onlyCountries.reduce((selectedCountry, country) => {
-      if (startsWith(inputNumber, country.dialCode)) {
+      if (inputNumber === country.dialCode) {
         if (country.dialCode.length > selectedCountry.dialCode.length) {
           return country;
         }
@@ -304,7 +306,7 @@ class PhoneInput extends React.Component {
 
     if (!bestGuess.name) return secondBestGuess;
     return bestGuess;
-  });
+  };
 
   // Hooks for updated props
   updateCountry = (country) => {
@@ -566,12 +568,12 @@ class PhoneInput extends React.Component {
       if (!this.state.freezeSelection || (!!selectedCountry && selectedCountry.dialCode.length > inputNumber.length)) {
         if (this.props.disableCountryGuess) {newSelectedCountry = selectedCountry;}
         else {
-          newSelectedCountry = this.guessSelectedCountry(inputNumber.substring(0, 6), country, onlyCountries, hiddenAreaCodes) || selectedCountry;
+          newSelectedCountry = this.guessSelectedCountry(inputNumber.substring(0, 6), country, onlyCountries, hiddenAreaCodes) || 0;
         }
         freezeSelection = false;
       }
       formattedNumber = this.formatNumber(inputNumber, newSelectedCountry);
-      newSelectedCountry = newSelectedCountry.dialCode ? newSelectedCountry : selectedCountry;
+      newSelectedCountry = newSelectedCountry.dialCode ? newSelectedCountry : 0;
     }
 
     const oldCaretPosition = e.target.selectionStart;

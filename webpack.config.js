@@ -44,7 +44,7 @@ if (TARGET === 'dev_js' || TARGET === 'dev_css') {
     entry: {
       'demo': path.resolve(ROOT_PATH, 'test/' + TARGET + '/demo.js')
     },
-    devtool: 'inline-source-map',
+    devtool: 'source-map',
     devServer: {
       publicPath: 'http://localhost:3000/',
       port: '3000',
